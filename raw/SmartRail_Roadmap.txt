@@ -1,0 +1,1216 @@
+SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+ 
+SMART RAIL 
+AI-Powered Precise Train Traffic Control 
+Maximizing Section Throughput via Intelligent Decision Support 
+ 
+Problem ID SIH 2025 — #25022 
+ 
+Domain Transportation & Logistics | Indian Railways 
+ 
+Category Software — AI/ML + Operations Research 
+ 
+Organization Ministry of Railways, Government of India 
+ 
+Document Type Full System Design & Implementation Roadmap 
+ 
+Difficulty Level Advanced — Production-Grade Portfolio Project 
+ 
+ 
+— Prepared as Elite-Grade Resume Project Roadmap — 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+Table of Contents 
+1. Executive Summary 3 
+ 
+2. Deep Problem Analysis & Decomposition 4 
+ 
+2.1 The Core Problem 4 
+2.2 Problem Classification 4 
+2.3 Constraint Taxonomy 4 
+2.4 The Exponential Search Space 5 
+2.5 Stakeholder Analysis 5 
+3. System Architecture 6 
+ 
+3.1 Architecture Overview 6 
+3.2 Core Services Detail 7 
+3.3 Data Flow Diagram 7 
+4. Core Algorithmic & Optimization Strategy 8 
+ 
+4.1 Problem Formulation 8 
+4.2 Tiered Optimization Strategy 8 
+4.3 MILP Model - Key Variables 9 
+4.4 Graph-Based Section Modeling 9 
+4.5 Reinforcement Learning Agent Design 9 
+5. Real-Time Decision Engine Design 10 
+ 
+5.1 Event-Driven Architecture 10 
+5.2 Re-optimization Workflow 10 
+5.3 Conflict Detection Engine 10 
+5.4 Explainability Module 11 
+6. Data Modeling & Database Schema Design 12 
+ 
+6.1 Core Entity Model 12 
+6.2 Key Tables 12 
+6.3 Time-Series Data (InfluxDB) 13 
+7. Technology Stack with Justification 14 
+ 
+7.1 Backend & Optimization 14 
+7.2 Data Storage 14 
+7.3 Frontend 14 
+7.4 Infrastructure & DevOps 15 
+8. UI/UX Design Direction 16 
+ 
+8.1 Design Philosophy 16 
+8.2 Primary View - Train String Diagram 16 
+8.3 Dashboard Layout 16 
+8.4 Key UI Components 17 
+9. Simulation & What-If Analysis System 18 
+ 
+9.1 Discrete Event Simulation Engine 18 SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+9.2 Simulation Use Cases 18 
+9.3 Simulation Architecture 18 
+10. Integration Architecture 19 
+ 
+10.1 External Systems 19 
+10.2 Integration Design Principles 19 
+10.3 API Design 19 
+11. Phased Implementation Roadmap 20 
+ 
+12. Performance Metrics & Evaluation Strategy 22 
+ 
+12.1 Railway Operational KPIs 22 
+12.2 System Performance KPIs 22 
+12.3 Evaluation Methodology 22 
+13. Challenges, Trade-offs & Scalability 23 
+ 
+13.1 Key Technical Challenges 23 
+13.2 Architectural Trade-offs 23 
+13.3 Scalability Path 23 
+14. Innovative Ideas & Differentiation 24 
+ 
+14.1 Innovations That Make This Project Stand Out 24 
+14.2 Resume & Portfolio Impact 25 
+15. Recommended Project Structure 26 
+ 
+16. Appendix 27 
+ 
+A. Glossary 27 
+B. Recommended Learning Path 27 
+C. Quick-Start MVP Checklist 28 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+1. Executive Summary 
+SmartRail is a production-grade, AI-powered intelligent decision-support system designed to assist 
+Indian Railways section controllers in making real-time, optimized train traffic control decisions. It 
+combines Operations Research (OR) algorithms, Machine Learning, and a modern real-time 
+architecture to solve one of the most complex combinatorial optimization problems in transportation 
+logistics — train precedence and crossing decisions across a shared track section. 
+ 
+The system targets a measurable 15–25% reduction in average train delay, 10–20% 
+improvement in section throughput, and near-real-time re-optimization under disruptions — 
+all while providing controllers with explainable, override-capable recommendations. 
+ 
+Key Pillars 
+Pillar Description 
+Optimization Core Mixed Integer Linear Programming (MILP) + Constraint 
+Programming + Reinforcement Learning for dynamic 
+scheduling 
+Real-Time Engine Event-driven microservices with sub-second re-optimization on 
+disruption events 
+Simulation Layer Discrete Event Simulation for what-if analysis, scenario 
+modeling, and training 
+Integration Hub Secure API gateway connecting TMS, ICMS, signaling, and 
+rolling stock systems 
+Decision UI Controller-centric dashboard with explainable AI, conflict 
+visualization, and override logging 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+2. Deep Problem Analysis & Decomposition 
+2.1 The Core Problem 
+Within a railway section — a stretch of track between two stations managed by a single section 
+controller — multiple trains of different types, speeds, and priorities must share finite track 
+infrastructure. The controller must continuously decide: 
+• Which train gets precedence at a crossing or loop station? 
+• Where and how long should a train be held to avoid conflicts? 
+• How do upstream delays cascade to downstream scheduling? 
+• What is the optimal order of train movements to maximize throughput? 
+ 
+2.2 Problem Classification 
+This is formally a Job Shop Scheduling Problem (JSSP) variant, specifically a Resource-
+Constrained Project Scheduling Problem (RCPSP) mapped onto a directed graph of track 
+segments. It belongs to the NP-Hard complexity class, meaning exact solutions become 
+computationally intractable beyond small instances — necessitating heuristic and metaheuristic 
+approaches for real-time use. 
+ 
+2.3 Constraint Taxonomy 
+Category Constraint Type Example / Detail 
+Safety — Hard Headway distance between 
+trains 
+Block section occupancy 
+exclusivity 
+Safety — Hard Signal aspect compliance 
+(G/Y/R) 
+No two trains in same block 
+simultaneously 
+Safety — Hard Level crossing clearance time Minimum stopping/approach 
+distances 
+Operational Train priority hierarchy 
+(Express > Mail > Passenger > 
+Freight) 
+Scheduled departure/arrival 
+times 
+Operational Platform capacity and dwell 
+time 
+Engine change / crew change 
+constraints 
+Infrastructure Single vs. double line sections Loop siding availability and 
+length 
+Infrastructure Speed restrictions by 
+section/gradient 
+Track maintenance blocks 
+Dynamic Real-time delays and 
+cascading effects 
+Rolling stock breakdowns 
+Dynamic Weather-induced speed 
+restrictions 
+Emergency rerouting needs 
+ 
+2.4 The Exponential Search Space SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+For N trains sharing a section with K crossing points, the number of possible orderings is O(N! × 
+2^K). Even for modest values (N=10, K=5), this yields ~116 million combinations — impossible for 
+manual evaluation in real time. This motivates the need for intelligent pruning, constraint 
+propagation, and approximate optimization. 
+ 
+2.5 Stakeholder Analysis 
+Stakeholder Interaction with System 
+Section Controller Primary user — real-time decision support, conflict alerts, 
+override capability 
+Divisional Control Office Monitoring dashboard, performance KPIs, intervention 
+escalation 
+Loco Pilots / Station 
+Masters 
+Recipients of updated orders generated by the system 
+Network Operations 
+Center 
+System-wide visibility, inter-section coordination 
+Maintenance Teams Block planning integration, conflict avoidance with maintenance 
+windows 
+Railway Board / 
+Management 
+Analytics, punctuality reports, infrastructure utilization metrics 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+3. System Architecture 
+3.1 Architecture Overview 
+SmartRail follows a Layered Microservices Architecture with an Event-Driven backbone, ensuring 
+modularity, fault isolation, real-time responsiveness, and horizontal scalability. The system is 
+divided into five distinct layers: 
+ 
+╔══════════════════════════════════════════════════════════════════════════╗ 
+║                    SMARTRAIL SYSTEM ARCHITECTURE                        ║ 
+╠══════════════════════════════════════════════════════════════════════════╣ 
+║  LAYER 5 — PRESENTATION LAYER                                           ║ 
+║  ┌─────────────────────────────────────────────────────────────────┐   ║ 
+║  │  Controller Dashboard (React)  │  Admin Portal  │  Mobile View  │   ║ 
+║  └──────────────────────────────────┬──────────────────────────────┘   ║ 
+║                                     │ WebSocket / REST                 ║ 
+╠═════════════════════════════════════╪════════════════════════════════════╣ 
+║  LAYER 4 — API GATEWAY & BFF                                            ║ 
+║  ┌───────────────────────────────────────────────────────────────────┐  ║ 
+║  │  Kong API Gateway  │  Auth (OAuth2/JWT)  │  Rate Limiter  │ RBAC  │  ║ 
+║  └───────────────────────────────────────────────────────────────────┘  ║ 
+║                                     │                                   ║ 
+╠═════════════════════════════════════╪════════════════════════════════════╣ 
+║  LAYER 3 — CORE SERVICES (Microservices)                                ║ 
+║  ┌────────────┐  ┌──────────────┐  ┌────────────┐  ┌──────────────┐   ║ 
+║  │  Schedule  │  │ Optimization │  │ Simulation  │  │  Alert &     │   ║ 
+║  │  Manager   │  │   Engine     │  │  Engine     │  │  Conflict    │   ║ 
+║  │  Service   │  │  (OR + RL)   │  │  (DES)      │  │  Detector    │   ║ 
+║  └────────────┘  └──────────────┘  └────────────┘  └──────────────┘   ║ 
+║  ┌────────────┐  ┌──────────────┐  ┌────────────┐  ┌──────────────┐   ║ 
+║  │  Train     │  │  Track       │  │  Event     │  │  Analytics   │   ║ 
+║  │  State     │  │  Resource    │  │  Processor │  │  & KPI       │   ║ 
+║  │  Tracker   │  │  Manager     │  │  Service   │  │  Service     │   ║ 
+║  └────────────┘  └──────────────┘  └────────────┘  └──────────────┘   ║ 
+║                                     │                                   ║ 
+╠═════════════════════════════════════╪════════════════════════════════════╣ 
+║  LAYER 2 — DATA & MESSAGING LAYER                                       ║ 
+║  ┌──────────────┐  ┌─────────────┐  ┌──────────────┐  ┌────────────┐  ║ SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+║  │  PostgreSQL  │  │    Redis     │  │  Apache      │  │  InfluxDB  │  ║ 
+║  │  (Main DB)   │  │  (Cache +   │  │  Kafka       │  │  (Time     │  ║ 
+║  │              │  │   Sessions) │  │  (Events)    │  │  Series)   │  ║ 
+║  └──────────────┘  └─────────────┘  └──────────────┘  └────────────┘  ║ 
+║                                     │                                   ║ 
+╠═════════════════════════════════════╪════════════════════════════════════╣ 
+║  LAYER 1 — INTEGRATION LAYER                                            ║ 
+║  ┌──────────────┐  ┌─────────────┐  ┌──────────────┐  ┌────────────┐  ║ 
+║  │  TMS         │  │  Signaling  │  │  Rolling     │  │  Weather   │  ║ 
+║  │  (Train Mgmt)│  │  System     │  │  Stock API   │  │  Service   │  ║ 
+║  └──────────────┘  └─────────────┘  └──────────────┘  └────────────┘  ║ 
+╚══════════════════════════════════════════════════════════════════════════╝ 
+ 
+3.2 Core Services Detail 
+3.2.1 Optimization Engine Service 
+The heart of SmartRail. Responsible for computing conflict-free, near-optimal train schedules. 
+Uses a tiered optimization strategy: 
+• Tier 1 — Fast Heuristic (< 200ms): Rule-based + Greedy for immediate conflict resolution 
+• Tier 2 — MILP/CP Solver (< 2s): Google OR-Tools for accurate short-horizon optimization 
+• Tier 3 — RL Agent (background): Deep Q-Network fine-tunes decisions based on historical 
+performance 
+ 
+3.2.2 Train State Tracker Service 
+Maintains a real-time in-memory representation of the entire section state: current position of every 
+train (interpolated from last known GPS/signal event), speed, priority, delay accumulation, and next 
+expected event. Updates at ≤ 5-second intervals. 
+ 
+3.2.3 Track Resource Manager Service 
+Manages a directed graph of track blocks, sidings, platforms, and signals. Implements a token-
+based locking mechanism to ensure no two trains are allocated the same block simultaneously. 
+Maintains a conflict detection queue using a sweep-line algorithm over the space-time graph. 
+ 
+3.2.4 Event Processor Service 
+Ingests events from integration layer via Kafka topics: train position updates, signal state changes, 
+delay notifications, breakdown alerts, weather advisories. Triggers re-optimization workflows when 
+disruption thresholds are exceeded. 
+ 
+3.3 Data Flow Diagram 
+  Railway Systems (TMS, ICMS, Signaling, GPS Transponders) SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+           │ 
+           ▼  REST/MQTT/TCP Push 
+  ┌─────────────────────────────┐ 
+  │   Integration Adapters      │   (normalize to SmartRail event schema) 
+  └──────────────┬──────────────┘ 
+                 │ Kafka Produce 
+                 ▼ 
+  ┌──────────────────────────────┐ 
+  │   Apache Kafka               │   Topics: train.events, signal.events, 
+  │   Event Bus                  │           disruption.alerts, schedule.updates 
+  └──────────────┬───────────────┘ 
+       ┌─────────┼────────────┐ 
+       ▼         ▼            ▼ 
+  [Train State] [Conflict   [Analytics 
+   Tracker]     Detector]    Collector] 
+       │         │ 
+       ▼         ▼ 
+  ┌──────────────────────────────┐ 
+  │  Optimization Engine         │  ← section graph, timetable, priorities 
+  │  (MILP + RL + Heuristic)     │ 
+  └──────────────┬───────────────┘ 
+                 │ WebSocket push 
+                 ▼ 
+  ┌──────────────────────────────┐ 
+  │  Controller Dashboard        │  Show: recommendations, conflicts, 
+  │  (React + D3.js)             │        timelines, override controls 
+  └──────────────────────────────┘ 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+4. Core Algorithmic & Optimization Strategy 
+4.1 Problem Formulation 
+The scheduling problem is formulated as a Space-Time Network Flow problem. The railway 
+section is represented as a directed graph G = (V, E) where nodes V represent train-station-time 
+combinations and edges E represent feasible movements. The optimization objective is: 
+ 
+  OBJECTIVE FUNCTION: 
+  Minimize: Σ(i∈Trains) [ w_i × delay_i  +  (1 - u_i) × throughput_penalty ] 
+ 
+  WHERE: 
+    w_i       = priority weight of train i  (Express=5, Mail=4, Pass=3, 
+Freight=2) 
+    delay_i   = (actual_arrival_i - scheduled_arrival_i) 
+    u_i       = utilization coefficient of track segment used by train i 
+ 
+  SUBJECT TO: 
+    [Safety]   x_i(t) ≠ x_j(t)  for all i≠j  (no two trains in same block) 
+    [Headway]  |t_i - t_j| ≥ headway_min  for consecutive trains 
+    [Priority] delay_i ≤ delay_j  if priority(i) > priority(j) [soft] 
+    [Platform] Σ trains at station s ≤ capacity(s)  at any time t 
+    [Signal]   train i can enter block b only if signal(b, t) ∈ {GREEN, CAUTION} 
+ 
+4.2 Tiered Optimization Strategy 
+A single algorithm cannot meet both correctness and speed requirements. SmartRail uses a tiered 
+approach: 
+ 
+Tier Latency 
+Target 
+Use Case & Description 
+Tier 1 — Greedy Heuristic < 200ms Immediate conflict resolution; priority-based 
+greedy; always runs first; sufficient for 70% of 
+cases 
+Tier 2 — MILP / CP Solver 0.5 – 5s OR-Tools CP-SAT solver; exact optimization for 
+short horizon (30–60 min window); runs on 
+disruption events 
+Tier 3 — Metaheuristic 5 – 30s Genetic Algorithm / Simulated Annealing for 
+complex multi-conflict scenarios; offline 
+refinement SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+Tier 4 — RL Agent Background Deep Q-Network trained on simulation; learns 
+dispatcher patterns; gradually replaces 
+heuristics over time 
+ 
+4.3 MILP Model — Key Variables 
+  Decision Variables: 
+    x[i][s][t]  ∈ {0,1}   — train i occupies station/block s at time slot t 
+    y[i][j]     ∈ {0,1}   — train i has precedence over train j at crossing 
+point 
+    d[i]        ≥ 0       — delay accumulated by train i (continuous) 
+ 
+  Key Constraints (encoded in OR-Tools CP-SAT): 
+    1. Exclusivity:    x[i][s][t] + x[j][s][t] ≤ 1  for all i≠j, s, t 
+    2. Headway:        t_entry[j][s] ≥ t_exit[i][s] + H_min 
+    3. No-overtake:    On single-line sections, ordering must be preserved 
+    4. Crossing rule:  Exactly one train proceeds at a crossing:  y[i][j] + 
+y[j][i] = 1 
+    5. Travel time:    t_exit[i][s] = t_entry[i][s] + travel_time(i, s, speed_i) 
+    6. Priority soft:  d[high_priority] ≤ d[low_priority] + M*(1-z)  (big-M 
+method) 
+ 
+4.4 Graph-Based Section Modeling 
+The track section is modeled as a Directed Weighted Graph where: 
+• Nodes represent stations, loops, crossings, and signal posts 
+• Edges represent track segments with attributes: length, max_speed, gradient, capacity 
+• A time-expanded graph duplicates each node across discrete time steps (1-minute 
+granularity) 
+• Shortest path in this space-time graph gives conflict-free routing for each train 
+ 
+4.5 Reinforcement Learning Agent Design 
+Over time, the system transitions from pure OR to a hybrid OR+RL approach: 
+ 
+Component Design Choice Rationale 
+State Space Current positions of all N trains, 
+delays, section congestion, 
+upcoming schedule, signal states 
+Action Space Discrete: {PROCEED, 
+HOLD_N_MINUTES, 
+DIVERT_TO_LOOP_k} for each 
+train at each decision point SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+Reward Function Negative weighted delay sum; 
+bonus for on-time departure; 
+penalty for safety violations 
+Architecture Dueling DQN with prioritized 
+experience replay; trained in 
+simulation (no live risk) 
+Deployment Shadow mode first 
+(recommendations logged but 
+not shown); A/B tested against 
+MILP baseline 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+5. Real-Time Decision Engine Design 
+5.1 Event-Driven Architecture 
+The decision engine is built on an event-driven architecture using Apache Kafka as the central 
+nervous system. This ensures: 
+• Decoupling between data producers (railway systems) and consumers (optimization services) 
+• Fault tolerance through event replay and consumer group management 
+• Horizontal scalability — add more optimization worker instances under load 
+• Auditability — complete event log for post-incident analysis 
+ 
+5.2 Re-optimization Workflow 
+  DISRUPTION EVENT RECEIVED 
+         │ 
+         ▼ 
+  ┌─────────────────────────────────┐ 
+  │  Event Classifier               │ 
+  │  Severity: LOW / MEDIUM / HIGH  │ 
+  └──────────────┬──────────────────┘ 
+         │ 
+  ┌──────┴──────────────────────┐ 
+  │  LOW (<5min delay)          │──▶ Tier 1 Heuristic  → Update dashboard 
+  │  MEDIUM (5-30min)           │──▶ Tier 2 MILP       → Re-optimize 1hr window 
+  │  HIGH (>30min / breakdown)  │──▶ Tier 2+3          → Full section replan 
+  └─────────────────────────────┘ 
+         │ 
+         ▼ 
+  Feasibility Check (hard constraints) 
+         │ 
+         ├─── FEASIBLE ──▶ Generate Recommendations → Push to Controller UI 
+         │ 
+         └─── INFEASIBLE ─▶ Trigger Constraint Relaxation → Alert + Escalate 
+ 
+5.3 Conflict Detection Engine 
+A dedicated conflict detection module continuously monitors the space-time graph for potential 
+violations. It implements: 
+• Forward collision detection: Two trains converging on same block within headway window SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+• Deadlock detection: Circular dependency in crossing orders (Train A waiting for B, B waiting 
+for A) 
+• Cascade analysis: How a delay at point X propagates downstream across N subsequent 
+trains 
+• Platform saturation alerts: Predicted overcrowding at loop stations 
+ 
+5.4 Explainability Module 
+A critical requirement for controller trust and adoption. For every recommendation, the system 
+generates a natural language explanation: 
+ 
+Example: "Recommend holding Train 12345-UP at Ratlam Loop for 8 minutes. Reason: 
+Oncoming 22955-DN Rajdhani Express (Priority 5) will clear the single-line section at 14:23. 
+Holding avoids a 25-minute deadlock that would affect 3 additional downstream trains. 
+Expected net time saving: 17 minutes weighted across all affected services." 
+ 
+The explanation system uses a template-based NLG (Natural Language Generation) approach 
+with structured reasoning chains extracted from the solver output. 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+6. Data Modeling & Database Schema Design 
+6.1 Core Entity Model 
+  ┌──────────────────┐     ┌─────────────────────┐     ┌─────────────────┐ 
+  │  TRAIN           │     │  SCHEDULE_ENTRY      │     │  SECTION        │ 
+  ├──────────────────┤     ├─────────────────────┤     ├─────────────────┤ 
+  │ train_id   (PK)  │──┐  │ entry_id       (PK)  │  ┌─│ section_id (PK) │ 
+  │ train_number     │  └─▶│ train_id       (FK)  │  │ │ section_name    │ 
+  │ train_type       │     │ section_id     (FK)──┘  │ │ from_station    │ 
+  │ priority_level   │     │ scheduled_arr        │  │ │ to_station      │ 
+  │ max_speed        │     │ scheduled_dep        │  │ │ line_type       │ 
+  │ is_active        │     │ actual_arr           │  │ │ total_length_km │ 
+  └──────────────────┘     │ actual_dep           │  │ └─────────────────┘ 
+                           │ delay_minutes        │  │ 
+  ┌──────────────────┐     │ status               │  │ ┌─────────────────┐ 
+  │  TRACK_BLOCK     │     └─────────────────────┘  │ │  LOOP_STATION   │ 
+  ├──────────────────┤                              │ ├─────────────────┤ 
+  │ block_id    (PK) │◀─────────────────────────────┘ │ station_id (PK) │ 
+  │ section_id  (FK) │     ┌─────────────────────┐    │ section_id (FK) │ 
+  │ block_name       │     │  OPTIMIZATION_RUN    │    │ platform_count  │ 
+  │ length_km        │     ├─────────────────────┤    │ max_train_length│ 
+  │ max_speed        │     │ run_id         (PK)  │    │ loop_capacity   │ 
+  │ block_type       │     │ triggered_by         │    └─────────────────┘ 
+  │ signal_id   (FK) │     │ algorithm_used       │ 
+  └──────────────────┘     │ objective_value      │ 
+                           │ runtime_ms           │ 
+                           │ schedule_output(JSON)│ 
+                           └─────────────────────┘ 
+ 
+6.2 Key Tables 
+Table Name Purpose Key Columns 
+trains Train master data train_id, train_number, type, priority, 
+max_speed, rake_length 
+sections Track section 
+topology 
+section_id, name, from/to station, 
+line_type, gradient_profile SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+track_blocks Individual block 
+segments 
+block_id, section_id, length, max_speed, 
+signal_id, type 
+schedule_entries Timetable per train 
+per section 
+entry_id, train_id, section_id, sched_arr, 
+sched_dep, platform 
+train_positions Real-time position 
+(InfluxDB) 
+train_id, timestamp, block_id, speed, 
+direction, delay_sec 
+optimization_runs Solver audit trail run_id, trigger_event, algorithm, 
+obj_value, runtime_ms, output_json 
+controller_actions Override and action 
+log 
+action_id, controller_id, action_type, 
+train_id, timestamp, reason 
+conflict_events Detected and 
+resolved conflicts 
+conflict_id, type, trains_involved, 
+detected_at, resolved_at, resolution 
+kpi_snapshots Periodic KPI 
+captures 
+snapshot_id, section_id, timestamp, 
+throughput, avg_delay, utilization 
+ 
+6.3 Time-Series Data (InfluxDB) 
+Real-time position, speed, and delay data is stored in InfluxDB for high-frequency writes and 
+efficient temporal queries. Tags: train_id, section_id, block_id. Fields: speed, delay, direction. 
+Retention policy: 30 days high-resolution, 2 years downsampled. 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+7. Technology Stack with Justification 
+7.1 Backend & Optimization 
+Technology Component Justification 
+Python 3.11+ Optimization 
+Engine, ML, Data 
+Processing 
+Dominant language in OR/ML; OR-Tools, 
+PuLP, TensorFlow all Python-native; vast 
+scientific ecosystem 
+Google OR-Tools CP-SAT / MILP 
+Solver 
+Industry-leading open-source solver; 
+handles 1000s of constraints; 10x faster 
+than CPLEX for rail-scheduling 
+benchmarks 
+FastAPI REST API Services Async-native Python API; OpenAPI auto-
+docs; 3x faster than Flask; ideal for high-
+concurrency real-time services 
+Apache Kafka Event Streaming Proven at scale (LinkedIn, Uber); durable 
+event log; exactly-once semantics; 
+enables decoupled microservices 
+Node.js + Express API Gateway / BFF High I/O concurrency; WebSocket 
+support; pairs well with React frontend 
+TensorFlow / PyTorch RL Agent Training PyTorch for research-phase RL 
+experimentation; TensorFlow Serving for 
+production inference 
+ 
+7.2 Data Storage 
+Technology Use Case Why This Over Alternatives 
+PostgreSQL 16 Primary relational 
+DB 
+ACID compliance critical for schedule 
+integrity; excellent geospatial extensions; 
+proven at scale 
+Redis 7.x Cache + Real-time 
+State 
+Sub-millisecond reads for current train 
+state; Pub/Sub for WebSocket 
+broadcasting; session management 
+InfluxDB 2.x Time-Series Store Purpose-built for sensor/telemetry data; 
+Flux query language; native 
+downsampling; Grafana integration 
+Apache Parquet + S3 Historical Data Lake Columnar format for analytics; cost-
+effective long-term storage; feeds ML 
+model training pipeline 
+ 
+7.3 Frontend 
+Technology Purpose Justification SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+React 18 + TypeScript Controller 
+Dashboard SPA 
+Component model fits complex real-time 
+UI; TypeScript for type safety in critical 
+control systems 
+D3.js + Recharts Train Graph 
+Visualization 
+D3 for custom space-time diagrams 
+(String Chart); Recharts for KPI charts; no 
+adequate off-the-shelf alternative 
+Socket.io Real-time Updates Bidirectional WebSocket; fallback to long-
+polling; mature library with good React 
+integration 
+Tailwind CSS UI Styling Rapid professional UI development; utility-
+first suits a dense data-heavy control 
+room interface 
+ 
+7.4 Infrastructure & DevOps 
+Technology Purpose Justification 
+Docker + Kubernetes Container 
+Orchestration 
+Each microservice containerized; K8s 
+enables auto-scaling of optimization 
+workers during peak load 
+Nginx Reverse Proxy / 
+Load Balancer 
+High performance; handles WebSocket 
+upgrades; SSL termination 
+Prometheus + Grafana System Monitoring Metrics for every service; latency, error 
+rate, optimization solver performance; 
+alerting rules 
+GitHub Actions CI/CD Pipeline Automated testing, linting, container 
+builds, and staged deployments 
+HashiCorp Vault Secrets 
+Management 
+Secure API key storage; critical for 
+integration with government railway 
+systems 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+8. UI/UX Design Direction 
+8.1 Design Philosophy 
+The controller dashboard must support high-stakes, high-stress decision-making. Design 
+principles: 
+• Information Density over Minimalism — controllers need maximum context, not whiteboards 
+• Action-oriented: Every visible element must enable or inform a decision 
+• Dark mode by default: Reduces eye strain in 24/7 control room environments 
+• Glanceable hierarchy: Critical alerts visible from 3 meters; no need to squint 
+• Override with accountability: Every manual override must require confirmation + reason 
+ 
+8.2 Primary View — Train String Diagram (Marey Chart) 
+The central visualization is a space-time diagram (also called a Train Graph or Marey Chart), 
+where: 
+• X-axis represents time (sliding window, default 3 hours) 
+• Y-axis represents stations along the section (from top to bottom) 
+• Each train is a colored diagonal line; slope = speed; color = priority level 
+• Conflicts appear as intersection points — highlighted in red 
+• System recommendations shown as dashed projections; controller drags to override 
+ 
+8.3 Dashboard Layout 
+  ┌────────────────────────────────────────────────────────────────────┐ 
+  │  SMARTRAIL  │ Section: Mumbai–Pune  │ Controller: KC Sharma  │ ⚠ 2 │ 
+  ├──────────────────────────────┬─────────────────────────────────────┤ 
+  │                              │  ACTIVE ALERTS (2)                  │ 
+  │   TRAIN STRING DIAGRAM        │  ┌────────────────────────────────┐  │ 
+  │   (Marey / Space-Time Chart)  │  │🔴 12315-UP: 14min late, heading │  │ 
+  │                              │  │   toward 22955-DN at km 87.3    │  │ 
+  │   [Real-time + Projections]  │  │  [RECOMMEND: Hold 8min at Loop] │  │ 
+  │   [Conflict markers in red]  │  │  [ACCEPT] [OVERRIDE] [SIMULATE] │  │ 
+  │                              │  └────────────────────────────────┘  │ 
+  │                              │  ┌────────────────────────────────┐  │ 
+  │                              │  │🟡 58101-DN: Brake issue, slow  │  │ 
+  │                              │  │   Running 15% below schedule   │  │ 
+  │                              │  └────────────────────────────────┘  │ 
+  ├──────────────────────────────┴─────────────────────────────────────┤ 
+  │  KPI BAR: Throughput: 18/hr | Avg Delay: 6.2min | Utilization: 73% │ 
+  └────────────────────────────────────────────────────────────────────┘ SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+ 
+8.4 Key UI Components 
+Component Description 
+Train Tooltip Panel Click any train line → shows number, type, origin, destination, 
+current delay, next 3 planned stops, speed 
+Recommendation Card Alert-style card with train ID, recommended action, reasoning, 
+estimated impact, ACCEPT/OVERRIDE buttons 
+What-If Sidebar Drag a train's projected path on the diagram; system shows 
+impact score; save as scenario 
+Override Log Right-click any train → override; opens modal for reason 
+selection; logs to audit trail 
+Section KPI Strip Persistent bottom bar: live throughput, average delay, track 
+utilization, number of active conflicts 
+Cascade Visualizer Select a delayed train → highlight all downstream trains 
+affected; show cumulative delay estimate 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+9. Simulation & What-If Analysis System 
+9.1 Discrete Event Simulation Engine 
+The simulation engine is a core differentiator. Built using Python's SimPy library, it models the 
+section as a collection of resources (track blocks, platforms, signals) and processes (train 
+movements). The simulator can run 24 hours of section traffic in under 60 seconds. 
+ 
+9.2 Simulation Use Cases 
+Use Case Description 
+Real-Time What-If Controller selects a scenario (hold Train A, reroute Train B) — 
+simulator runs and shows outcome in 3 seconds 
+Disruption Impact Input: Train breakdown at location X. Output: Propagated 
+delays across section, recommended mitigations 
+Schedule Stress Test Inject random delays across all trains; evaluate robustness of 
+optimized schedule vs. original timetable 
+Infrastructure Analysis Test impact of new loop siding, signal placement change, or 
+section speed upgrade 
+Controller Training Realistic simulation scenarios for training new section 
+controllers on edge cases 
+Algorithm Validation Benchmark new optimization algorithms against historical real-
+world data before production deployment 
+ 
+9.3 Simulation Architecture 
+  class SmartRailSimulator: 
+      def __init__(self, section_config, timetable, optimization_policy): 
+          self.env = simpy.Environment() 
+          self.tracks = {b: simpy.Resource(env, capacity=1) for b in 
+section_config.blocks} 
+          self.trains = [TrainProcess(env, t, tracks) for t in timetable] 
+          self.policy = optimization_policy  # 'greedy' | 'milp' | 'rl_agent' 
+ 
+      def run(self, duration_minutes=1440): 
+          for train in self.trains: 
+              self.env.process(train.run()) 
+          self.env.run(until=duration_minutes) 
+          return self.collect_metrics() 
+ SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+  # Train process models resource acquisition, travel, waiting, and conflict 
+resolution 
+  class TrainProcess: 
+      def run(self): 
+          for block in self.route: 
+              yield self.env.process(self.request_block(block)) 
+              yield self.env.timeout(self.travel_time(block)) 
+              self.release_block(block) 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+10. Integration Architecture 
+10.1 External Systems 
+System Integration Method & Data 
+TMS — Train 
+Management System 
+Primary source of train schedules, running status, and delay 
+data. Integration via REST API + periodic polling. 
+ICMS — Integrated 
+Coaching Management 
+Rolling stock availability, rake composition, loco details. 
+REST/SOAP adapter. 
+Centralized Traffic Control 
+(CTC) 
+Signal state telemetry. TCP/IP push from signaling backbone 
+with SmartRail adapter normalizing to internal schema. 
+FOIS — Freight 
+Operations 
+Freight train schedules and priority flags. REST API with 
+scheduled sync every 15 minutes. 
+IMD Weather API Weather alerts, visibility, wind speed for speed restriction 
+advisories. REST polling every 10 minutes. 
+GPS Transponders (where 
+available) 
+Real-time train location with ±50m accuracy. MQTT push to 
+SmartRail integration layer. 
+ 
+10.2 Integration Design Principles 
+• Adapter Pattern: Each external system has a dedicated adapter that normalizes data to 
+SmartRail's internal event schema 
+• Graceful Degradation: If TMS feed is unavailable, system falls back to last-known schedule; 
+alerts controller 
+• Data Validation: All incoming data schema-validated using Pydantic before entering event bus 
+• Security: All external connections use mTLS; API keys stored in Vault; network-segmented 
+from public internet 
+ 
+10.3 API Design (SmartRail Internal APIs) 
+Endpoint Purpose Notes 
+GET /section/{id}/state Current real-time state of all 
+trains in section 
+WebSocket alternative 
+available for streaming 
+POST /optimize Trigger optimization run with 
+current state 
+Returns job_id; result retrieved 
+via WebSocket or polling 
+GET /optimize/{job_id} Get optimization result and 
+recommendations 
+Includes reasoning chain for 
+explainability 
+POST /simulate Run what-if scenario 
+simulation 
+Body: scenario config; returns 
+metrics comparison 
+POST /actions/override Log controller manual 
+override action 
+Required: reason, controller_id, 
+action_details 
+GET /kpi/{section_id} KPI metrics for section Supports time range queries; 
+returns JSON or CSV SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+11. Phased Implementation Roadmap 
+Phase 0 — Foundation (Weeks 1–2) 
+Goal: Set up project infrastructure, data models, and development environment. 
+• Initialize monorepo with separate packages: core/, api/, frontend/, simulator/, ml/ 
+• Set up Docker Compose with PostgreSQL, Redis, Kafka, InfluxDB 
+• Define and implement all database schemas with migration scripts (Alembic) 
+• Create synthetic data generator: 50 trains, 20-station section, 24-hour timetable 
+• Set up CI/CD pipeline: GitHub Actions → lint → test → Docker build 
+ 
+Phase 1 — Core Optimization Engine (Weeks 3–5) 
+Goal: Working MILP solver producing valid, conflict-free schedules. 
+• Implement section graph model using NetworkX (nodes: stations/blocks, edges: track 
+segments) 
+• Build CP-SAT model in Google OR-Tools with all hard constraints 
+• Implement Tier 1 greedy heuristic as fast fallback 
+• Unit test solver against known benchmark instances (validate against manual solutions) 
+• Benchmark: target < 2s for 30-train, 15-station, 60-minute horizon problem 
+ 
+Phase 2 — Real-Time Engine (Weeks 6–8) 
+Goal: Event-driven pipeline processing live state changes and triggering re-optimization. 
+• Implement Kafka producers/consumers for all event types 
+• Build Train State Tracker service with Redis-backed real-time state 
+• Implement Conflict Detection Engine (sweep-line algorithm on time-expanded graph) 
+• Build Event Processor with disruption severity classification 
+• Integration test: inject a delay event; verify re-optimization triggers in < 5 seconds 
+ 
+Phase 3 — Simulation Engine (Weeks 9–10) 
+Goal: Full-featured SimPy-based discrete event simulator. 
+• Implement SimPy simulation with resource-based track block model 
+• Support multiple optimization policies (greedy, MILP, RL) as pluggable strategies 
+• Build scenario manager: save, load, compare multiple what-if scenarios 
+• Validate simulator against real Indian Railways operational data (if obtainable) 
+ 
+Phase 4 — Controller Dashboard (Weeks 11–14) 
+Goal: Production-quality React dashboard for section controllers. 
+• Implement D3.js Marey Chart (space-time train diagram) with real-time updates 
+• Build alert panel with recommendation cards (Accept/Override/Simulate actions) 
+• Implement override logging modal with reason selection 
+• Build KPI strip (throughput, avg delay, utilization) 
+• What-if sidebar: drag train paths, instant simulation feedback 
+• Conduct usability testing with domain experts if possible SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+ 
+Phase 5 — Analytics & ML Layer (Weeks 15–17) 
+Goal: KPI dashboards, performance monitoring, and initial RL agent. 
+• Build Grafana dashboards for system performance and railway KPIs 
+• Implement KPI computation service (punctuality index, throughput, utilization) 
+• Train initial DQN agent in simulation environment (10,000 episodes) 
+• Deploy RL agent in shadow mode; log recommendations for comparison with MILP baseline 
+ 
+Phase 6 — Integration & Hardening (Weeks 18–20) 
+Goal: Production readiness, security, and integration testing. 
+• Implement integration adapters for TMS, signaling, and weather APIs (using mock services) 
+• Full end-to-end integration testing with simulated external data feeds 
+• Security audit: authentication, authorization, input validation, secrets management 
+• Load testing: simulate 1000 concurrent events; verify system stability 
+• Complete API documentation, system documentation, and demo video 
+ 
+Phase Timeline Deliverables 
+Phase 0 Weeks 1–2 Foundation: infra, schemas, data generation, 
+CI/CD 
+Phase 1 Weeks 3–5 Optimization engine: OR-Tools MILP + greedy 
+heuristic 
+Phase 2 Weeks 6–8 Real-time engine: Kafka + conflict detection + re-
+optimization 
+Phase 3 Weeks 9–10 Simulation engine: SimPy DES + scenario 
+manager 
+Phase 4 Weeks 11–14 Controller dashboard: React + D3 Marey chart + 
+override UI 
+Phase 5 Weeks 15–17 Analytics + RL agent training + shadow 
+deployment 
+Phase 6 Weeks 18–20 Integration, security hardening, load testing, 
+documentation 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+12. Performance Metrics & Evaluation Strategy 
+12.1 Railway Operational KPIs 
+KPI Definition Target 
+Section Throughput Trains per hour successfully 
+traversing the section 
+> 15% improvement over 
+baseline 
+Average Weighted Delay Delay weighted by train 
+priority (Express delays 
+penalized more) 
+< 5 minutes weighted average 
+Punctuality Index % of trains arriving within 5 
+minutes of schedule 
+> 85% (Indian Railways target: 
+80%) 
+Track Utilization % of time track blocks are 
+occupied vs. capacity 
+Increase by 10–20% 
+Conflict Resolution Rate % of detected conflicts 
+resolved before becoming 
+incidents 
+> 99% 
+Cascade Delay Rate % of delays that propagate 
+to ≥ 2 downstream trains 
+Reduce by 30% 
+ 
+12.2 System Performance KPIs 
+System KPI Definition Target 
+Optimization Latency (Tier 
+1) 
+Time from disruption event to 
+first recommendation 
+< 200ms (P95) 
+Optimization Latency (Tier 
+2) 
+Time for full MILP re-
+optimization 
+< 3s for 30-train, 60-min 
+horizon 
+Event Processing 
+Throughput 
+Events processed per 
+second from Kafka 
+> 1000 events/sec 
+Dashboard Update 
+Latency 
+Time from event to controller 
+seeing updated train graph 
+< 1 second 
+System Availability Uptime for the entire 
+SmartRail platform 
+> 99.9% (8.7 hours 
+downtime/year) 
+Data Freshness Maximum age of train 
+position data shown to 
+controller 
+< 10 seconds 
+ 
+12.3 Evaluation Methodology 
+• Baseline Comparison: Run SmartRail recommendations against historical manual decisions 
+on the same scenario; measure delta in weighted delay 
+• A/B Testing (Shadow Mode): Deploy SmartRail alongside manual operation; compare 
+outcomes over 30-day window SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+• Simulation Benchmarking: Standard OR benchmark instances (UIC benchmark, ATOC UK 
+rail data) for algorithmic comparison 
+• Stress Testing: Inject 20% random delays into all trains; measure system degradation and 
+recovery time 
+• Controller Acceptance Testing: Session with domain experts evaluating dashboard usability; 
+score via NASA-TLX workload scale 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+13. Challenges, Trade-offs & Scalability 
+13.1 Key Technical Challenges 
+Challenge Detail & Mitigation Strategy 
+NP-Hard Optimization at 
+Speed 
+Exact MILP is too slow for large horizons. Mitigation: rolling 
+horizon decomposition (solve 60-min windows, slide forward); 
+warm-starting solver from previous solution; parallel solver 
+instances. 
+Real-Time Data Reliability Railway data feeds are often noisy, delayed, or missing. 
+Mitigation: probabilistic state estimation using Kalman filters; 
+confidence scores on recommendations; graceful degradation 
+modes. 
+Controller Trust & 
+Adoption 
+Controllers may distrust or over-rely on AI recommendations. 
+Mitigation: explainability module; shadow mode analytics 
+proving value before full deployment; human always has final 
+override. 
+Dynamic Disruption 
+Handling 
+Cascading disruptions create a moving optimization target. 
+Mitigation: event-driven re-optimization; incremental repair 
+(modify current schedule minimally) rather than full replanning. 
+System Integration 
+Complexity 
+Legacy railway systems use diverse protocols (SOAP, TCP, 
+proprietary). Mitigation: adapter pattern with protocol 
+translation; mock services for development/testing. 
+Scalability to Network-
+Level 
+Extending from one section to a full divisional/zonal network 
+multiplies problem size. Mitigation: hierarchical decomposition 
+— each section controller has independent SmartRail instance; 
+coordination layer handles inter-section handoffs. 
+ 
+13.2 Architectural Trade-offs 
+Trade-off Decision & Rationale 
+Microservices vs. Monolith Chose microservices for independent scaling of optimization 
+workers, but adds operational complexity. Mitigated by 
+comprehensive Docker Compose setup for development 
+simplicity. 
+MILP vs. Pure RL MILP provides hard constraint guarantees; RL is faster but 
+cannot guarantee feasibility. Chosen approach: MILP for safety-
+critical constraint enforcement; RL for performance optimization 
+within feasible space. 
+Kafka vs. Direct API calls Kafka adds complexity but provides durability, replay, and 
+decoupling. Critical for audit trail requirements and handling 
+bursty event volumes during major disruptions. 
+Real-time vs. Batch 
+Optimization 
+Real-time is complex; batch (recalculate every N minutes) is 
+simpler. Chosen: event-driven with configurable frequency, 
+balancing responsiveness and computational load. 
+ SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+13.3 Scalability Path 
+• Horizontal: Kubernetes Horizontal Pod Autoscaler scales optimization worker pods based on 
+queue depth 
+• Vertical: Solver performance scales with CPU; larger instances for complex sections 
+• Geographic: Each railway division gets its own SmartRail deployment; central analytics 
+aggregation 
+• Network-Level: Hierarchical optimization — section-level SmartRail feeds into divisional 
+coordination layer 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+14. Innovative Ideas & Differentiation 
+14.1 Innovations That Make This Project Stand Out 
+14.1.1 Adaptive Horizon Optimization 
+Instead of a fixed optimization window, implement an adaptive horizon that expands when a major 
+disruption is detected (extending lookahead from 60 to 180 minutes) and contracts during normal 
+operations to reduce computational load. This mirrors how expert controllers widen their attention 
+during crises. 
+ 
+14.1.2 Controller Behavior Learning 
+Log all controller overrides with outcomes. Train a preference learning model that gradually adapts 
+recommendations to match the mental model of experienced controllers, reducing override rate 
+over time. This makes the system a genuine intelligence augmentation tool rather than a 
+replacement. 
+ 
+14.1.3 Probabilistic Schedule Representation 
+Instead of deterministic arrival time predictions, model each train's future position as a probability 
+distribution (based on historical delay patterns, weather, track condition). Show controllers 
+confidence intervals on the Marey chart — a revolutionary upgrade from current point-estimate 
+thinking. 
+ 
+14.1.4 Digital Twin Integration 
+Build a persistent Digital Twin of the section that continuously updates from real-world data. The 
+twin serves as the ground truth for optimization, simulation, and anomaly detection — detecting 
+when physical track behavior deviates from the model (e.g., a section consistently taking longer 
+than scheduled, possibly indicating track degradation). 
+ 
+14.1.5 Multi-Objective Pareto Frontier Visualization 
+When multiple equally valid schedules exist, present controllers with a Pareto frontier: trade-off 
+curves between punctuality, throughput, and energy efficiency. Controllers choose their preferred 
+operating point — giving them agency while the system handles constraint enforcement. 
+ 
+14.1.6 Federated Learning for Model Improvement 
+Multiple section SmartRail deployments contribute anonymized performance data to a central 
+federated learning system that improves the shared RL model — without transferring sensitive 
+operational data. Sections with similar characteristics (mountain gradients, traffic density) form 
+learning clusters. 
+ 
+14.2 Resume & Portfolio Impact 
+Dimension What It 
+Demonstrates 
+Why It Impresses Interviewers 
+Operations Research Real MILP 
+formulation with OR-
+Tools; NP-Hard SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+problem solving 
+under real-time 
+constraints; 
+demonstrates 
+mathematical 
+optimization depth 
+Distributed Systems Event-driven 
+microservices with 
+Kafka; exactly-once 
+semantics; fault-
+tolerant design; 
+demonstrates 
+production 
+architecture thinking 
+Machine Learning RL agent with DQN; 
+trained on 
+simulation; shadow 
+deployment 
+strategy; 
+demonstrates 
+responsible ML 
+deployment 
+Full-Stack Engineering React + D3 + 
+Python + 
+PostgreSQL + 
+Redis; end-to-end 
+ownership; 
+demonstrates 
+breadth 
+Domain Expertise Deep understanding 
+of railway 
+operations, 
+scheduling theory, 
+and safety 
+constraints; 
+demonstrates ability 
+to translate domain 
+knowledge into 
+technical solutions 
+Product Thinking Explainability, 
+override 
+mechanisms, audit 
+trails, KPI 
+dashboards; 
+demonstrates 
+awareness that 
+systems are used 
+by humans, not just 
+computers 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+15. Recommended Project Structure 
+  smartrail/ 
+  ├── core/                          # Shared domain models and utilities 
+  │   ├── models/                    # Pydantic data models 
+  │   │   ├── train.py               # Train, TrainType, Priority 
+  │   │   ├── section.py             # Section, TrackBlock, Signal 
+  │   │   └── schedule.py            # ScheduleEntry, OptimizationResult 
+  │   └── graph/ 
+  │       └── section_graph.py       # NetworkX-based section topology 
+  │ 
+  ├── optimization/                  # Core OR/AI engine 
+  │   ├── solvers/ 
+  │   │   ├── milp_solver.py         # OR-Tools CP-SAT implementation 
+  │   │   ├── greedy_heuristic.py    # Tier 1 fast solver 
+  │   │   └── metaheuristic.py       # Genetic Algorithm / SA 
+  │   ├── conflict_detector.py       # Space-time conflict detection 
+  │   └── rl_agent/ 
+  │       ├── environment.py         # Gym-compatible section environment 
+  │       ├── dqn_model.py           # Dueling DQN architecture 
+  │       └── trainer.py             # Training loop 
+  │ 
+  ├── simulator/                     # SimPy discrete event simulation 
+  │   ├── engine.py                  # Main SimPy simulator 
+  │   ├── train_process.py           # Train movement SimPy process 
+  │   ├── scenario_manager.py        # Save/load/compare scenarios 
+  │   └── data_generator.py          # Synthetic data generation 
+  │ 
+  ├── services/                      # Microservices 
+  │   ├── api/                       # FastAPI REST API 
+  │   │   ├── main.py 
+  │   │   ├── routers/ 
+  │   │   └── websocket.py 
+  │   ├── train_tracker/             # Real-time state tracker 
+  │   ├── event_processor/           # Kafka consumer + orchestrator 
+  │   └── analytics/                 # KPI computation service SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+  │ 
+  ├── integrations/                  # External system adapters 
+  │   ├── tms_adapter.py 
+  │   ├── signaling_adapter.py 
+  │   └── weather_adapter.py 
+  │ 
+  ├── frontend/                      # React dashboard 
+  │   ├── src/ 
+  │   │   ├── components/ 
+  │   │   │   ├── MareyChart/        # D3 space-time diagram 
+  │   │   │   ├── AlertPanel/        # Recommendation cards 
+  │   │   │   └── KPIStrip/          # Live metrics bar 
+  │   │   └── hooks/                 # useWebSocket, useTrainState 
+  │   └── package.json 
+  │ 
+  ├── infra/                         # Infrastructure configuration 
+  │   ├── docker-compose.yml 
+  │   ├── k8s/                       # Kubernetes manifests 
+  │   └── monitoring/                # Prometheus + Grafana configs 
+  │ 
+  ├── tests/ 
+  │   ├── unit/                      # Per-module unit tests 
+  │   ├── integration/               # End-to-end pipeline tests 
+  │   └── benchmarks/                # Solver performance benchmarks 
+  │ 
+  └── docs/ 
+      ├── architecture.md 
+      ├── api_reference.md 
+      └── problem_formulation.pdf 
+  SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+16. Appendix 
+A. Glossary 
+Term Definition 
+MILP Mixed Integer Linear Programming — optimization model with 
+continuous and binary variables 
+CP-SAT Constraint Programming — Satisfiability solver; Google OR-Tools 
+implementation 
+DES Discrete Event Simulation — simulation paradigm where state changes 
+at discrete points in time 
+DQN Deep Q-Network — reinforcement learning architecture using neural 
+network to approximate Q-values 
+Marey Chart Space-time diagram showing train positions over time; invented by 
+Étienne-Jules Marey, used by Charles Minard 
+Headway Minimum safe time/distance between two consecutive trains on the 
+same track 
+Cascade Delay A delay in one train causing delays in subsequent trains due to shared 
+infrastructure 
+Rolling Horizon Optimization technique that solves a short window and advances 
+forward in time 
+TMS Train Management System — Indian Railways primary operational data 
+system 
+ICMS Integrated Coaching Management System — rolling stock management 
+Block Section A length of track between two signals; only one train permitted at a time 
+Loop Siding Additional track at a station allowing trains to cross or overtake 
+ 
+B. Recommended Learning Path 
+• Operations Research: Hillier & Lieberman 'Introduction to Operations Research'; Wolsey 
+'Integer Programming' 
+• Railway Scheduling: Caprara et al. 'Modeling and Solving the Train Timetabling Problem'; UIC 
+rail scheduling papers 
+• OR-Tools: Google OR-Tools CP-SAT documentation and vehicle routing examples 
+(structurally similar to train scheduling) 
+• Reinforcement Learning: Sutton & Barto 'Reinforcement Learning: An Introduction'; OpenAI 
+Spinning Up 
+• Discrete Event Simulation: SimPy documentation; Law 'Simulation Modeling and Analysis' 
+• Real-Time Systems: Kleppmann 'Designing Data-Intensive Applications' (Kafka, streaming, 
+consistency) 
+ 
+C. Quick-Start MVP Checklist 
+For a compelling 4-week MVP demonstration: SmartRail — AI Train Traffic Control System 
+Ministry of Railways | SIH #25022     Page  
+1. Generate synthetic section data: 15 stations, 20 trains, 12-hour timetable 
+2. Implement MILP solver with 5 core constraints (exclusivity, headway, priority, platform, no-
+deadlock) 
+3. Build SimPy simulator and validate solver output 
+4. Create React frontend with D3 Marey Chart reading from static JSON 
+5. Connect solver output to dashboard via FastAPI WebSocket 
+6. Add conflict injection: modify one train's position, show re-optimization in UI 
+7. Add KPI strip showing throughput and average delay 
+8. Record 3-minute demo video with a live disruption scenario 
+ 
+An MVP with a working optimization loop + real-time dashboard + live disruption demo is 
+worth more than a theoretically complete but non-functional system. Prioritize depth over 
+breadth: one working end-to-end flow beats seven partially built features. 
+ 
+ 
+SmartRail Project Roadmap — AI-Powered Train Traffic Control System 
+Ministry of Railways | SIH Problem #25022 | Production-Grade Portfolio Project 

@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "smartrail"
+version = "0.1.0"
+description = "AI-powered intelligent decision-support system for Indian Railways section controllers"
+authors = ["SmartRail Team <team@smartrail.local>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["all"], version = "^0.111.0"}
+pydantic = "^2.7.0"
+networkx = "^3.3"
+ortools = "^9.9.3963"
+simpy = "^4.1.1"
+tensorflow = "^2.16.1"
+sqlalchemy = "^2.0.30"
+alembic = "^1.13.1"
+psycopg2-binary = "^2.9.9"
+redis = "^5.0.4"
+kafka-python-ng = "^2.2.2"
+influxdb-client = "^1.42.0"
+pytest = "^8.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

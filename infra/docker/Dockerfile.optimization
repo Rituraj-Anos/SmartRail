@@ -1,0 +1,46 @@
+# Stage 1: Builder
+# ─────────────────────────────────────────────
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir poetry==1.8.3
+
+COPY pyproject.toml poetry.lock* ./
+
+# Export without dev dependencies
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --without dev
+
+# ─────────────────────────────────────────────
+# Stage 2: Runtime
+# OR-Tools requires more system libs than the API service
+# ─────────────────────────────────────────────
+FROM python:3.11-slim AS runtime
+
+WORKDIR /app
+
+# OR-Tools needs these at runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    curl \
+    libprotobuf-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy relevant source packages
+COPY core/ ./core/
+COPY optimization/ ./optimization/
+COPY simulator/ ./simulator/
+COPY services/event_processor/ ./services/event_processor/
+
+RUN useradd -m -u 1000 smartrail
+USER smartrail
+
+EXPOSE 8001
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -f http://localhost:8001/health || exit 1
+
+CMD ["uvicorn", "services.event_processor.main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "1"]
