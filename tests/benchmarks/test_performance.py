@@ -43,7 +43,7 @@ def test_milp_performance():
     
     cd = ConflictDetector()
     t_cd0 = time.time()
-    conflicts = cd.detect_conflicts(schedules)
+    cd.detect_conflicts(schedules)
     t_cd1 = time.time()
     
     assert (t_cd1 - t_cd0) < 1.0

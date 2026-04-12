@@ -123,7 +123,7 @@ class ConflictDetector:
         queue = [delayed_train_id]
         visited = {delayed_train_id}
         while queue:
-            current = queue.pop(0)
+            queue.pop(0)
             for other_id, path in schedules.items():
                 if other_id in visited:
                     continue
