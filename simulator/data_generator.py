@@ -1,5 +1,4 @@
 import random
-from datetime import datetime, timedelta
 from typing import List
 from core.models.train import Train, TrainType, Priority
 from core.models.section import Section, LoopStation, TrackBlock

@@ -1,5 +1,3 @@
-import pytest
-from core.models.train import Train, TrainType, Priority
 from simulator.data_generator import generate_scenario
 from optimization.solvers.greedy_heuristic import GreedySolver
 from optimization.solvers.milp_solver import MILPSolver

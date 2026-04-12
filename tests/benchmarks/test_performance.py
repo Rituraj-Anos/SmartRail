@@ -1,4 +1,3 @@
-import pytest
 import time
 from simulator.data_generator import generate_scenario
 from optimization.solvers.greedy_heuristic import GreedySolver

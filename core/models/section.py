@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List, Optional
+from typing import List
 
 class Signal(BaseModel):
     model_config = ConfigDict(from_attributes=True)
