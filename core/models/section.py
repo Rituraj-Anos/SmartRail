@@ -1,16 +1,18 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List
 
+
 class Signal(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     signal_id: str
     location_km: float
     direction: str  # "UP" or "DOWN"
 
+
 class TrackBlock(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     block_id: str
     start_km: float
     end_km: float
@@ -19,9 +21,10 @@ class TrackBlock(BaseModel):
     is_electrified: bool = True
     gradient: float = 0.0
 
+
 class LoopStation(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     station_id: str
     station_code: str
     name: str
@@ -30,9 +33,10 @@ class LoopStation(BaseModel):
     loop_capacity_meters: float
     can_overtake: bool = True
 
+
 class Section(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     section_id: str
     name: str
     start_station_code: str
