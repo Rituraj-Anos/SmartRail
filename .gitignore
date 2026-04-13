@@ -238,3 +238,5 @@ infra/docker/secrets/
 # IDE
 .vscode/
 .idea/
+
+get-shit-done/

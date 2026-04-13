@@ -247,7 +247,9 @@ class EventOrchestrator:
                         f"flagging for Tier 3 background replan"
                     )
 
-            runtime_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            runtime_ms = (
+                datetime.now(timezone.utc) - start_time
+            ).total_seconds() * 1000
 
             reopt_result = ReoptimizationResult(
                 triggered_by_event=event_id,
@@ -260,7 +262,9 @@ class EventOrchestrator:
             )
 
         except Exception as e:
-            runtime_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            runtime_ms = (
+                datetime.now(timezone.utc) - start_time
+            ).total_seconds() * 1000
             logger.error(f"Reoptimization failed: {e}")
             reopt_result = ReoptimizationResult(
                 triggered_by_event=event_id,

@@ -198,7 +198,9 @@ class ConflictDetector:
                 occupancy[key] = train_id
         return conflicts
 
-    def detect_cascades(self, train_id: str, schedules: dict, delay_minutes: float) -> list:
+    def detect_cascades(
+        self, train_id: str, schedules: dict, delay_minutes: float
+    ) -> list:
         """Phase 1 style cascade detection."""
         if train_id not in schedules:
             return []
