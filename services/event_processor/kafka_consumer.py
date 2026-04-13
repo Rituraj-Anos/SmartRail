@@ -16,7 +16,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Callable, Optional
 
@@ -320,12 +320,12 @@ class EventFactory:
         reason: str = "unspecified",
     ) -> dict:
         return {
-            "event_id": f"evt_{train_id}_{datetime.utcnow().timestamp():.0f}",
+            "event_id": f"evt_{train_id}_{datetime.now(timezone.utc).timestamp():.0f}",
             "event_type": EventType.DELAY_REPORTED.value,
             "train_id": train_id,
             "train_number": train_number,
             "section_id": section_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "payload": {
                 "delay_seconds": delay_seconds,
                 "block_id": block_id,
@@ -343,12 +343,12 @@ class EventFactory:
         direction: str,
     ) -> dict:
         return {
-            "event_id": f"evt_{train_id}_{datetime.utcnow().timestamp():.0f}",
+            "event_id": f"evt_{train_id}_{datetime.now(timezone.utc).timestamp():.0f}",
             "event_type": EventType.POSITION_UPDATE.value,
             "train_id": train_id,
             "train_number": train_number,
             "section_id": section_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "payload": {
                 "block_id": block_id,
                 "speed_kmh": speed_kmh,
@@ -365,12 +365,12 @@ class EventFactory:
         estimated_recovery_minutes: int = 60,
     ) -> dict:
         return {
-            "event_id": f"evt_{train_id}_{datetime.utcnow().timestamp():.0f}",
+            "event_id": f"evt_{train_id}_{datetime.now(timezone.utc).timestamp():.0f}",
             "event_type": EventType.BREAKDOWN.value,
             "train_id": train_id,
             "train_number": train_number,
             "section_id": section_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "payload": {
                 "block_id": block_id,
                 "estimated_recovery_minutes": estimated_recovery_minutes,

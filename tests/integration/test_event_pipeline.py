@@ -10,7 +10,7 @@ Verifies the full event pipeline end-to-end:
 """
 
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timezone
 
 import pytest
 import redis
@@ -67,7 +67,7 @@ def sample_trains(tracker) -> list[TrainState]:
             status=TrainStatus.RUNNING.value,
             scheduled_arrival="2024-01-01T14:30:00",
             scheduled_departure="2024-01-01T14:32:00",
-            last_updated=datetime.utcnow().isoformat(),
+            last_updated=datetime.now(timezone.utc).isoformat(),
             section_id=SECTION_ID,
         ),
         TrainState(
@@ -82,7 +82,7 @@ def sample_trains(tracker) -> list[TrainState]:
             status=TrainStatus.RUNNING.value,
             scheduled_arrival="2024-01-01T14:45:00",
             scheduled_departure="2024-01-01T14:47:00",
-            last_updated=datetime.utcnow().isoformat(),
+            last_updated=datetime.now(timezone.utc).isoformat(),
             section_id=SECTION_ID,
         ),
         TrainState(
@@ -97,7 +97,7 @@ def sample_trains(tracker) -> list[TrainState]:
             status=TrainStatus.DELAYED.value,
             scheduled_arrival="2024-01-01T14:20:00",
             scheduled_departure="2024-01-01T14:22:00",
-            last_updated=datetime.utcnow().isoformat(),
+            last_updated=datetime.now(timezone.utc).isoformat(),
             section_id=SECTION_ID,
         ),
         TrainState(
@@ -112,7 +112,7 @@ def sample_trains(tracker) -> list[TrainState]:
             status=TrainStatus.RUNNING.value,
             scheduled_arrival=None,
             scheduled_departure=None,
-            last_updated=datetime.utcnow().isoformat(),
+            last_updated=datetime.now(timezone.utc).isoformat(),
             section_id=SECTION_ID,
         ),
         TrainState(
@@ -127,7 +127,7 @@ def sample_trains(tracker) -> list[TrainState]:
             status=TrainStatus.DELAYED.value,
             scheduled_arrival="2024-01-01T14:35:00",
             scheduled_departure="2024-01-01T14:37:00",
-            last_updated=datetime.utcnow().isoformat(),
+            last_updated=datetime.now(timezone.utc).isoformat(),
             section_id=SECTION_ID,
         ),
     ]
@@ -255,7 +255,7 @@ class TestConflictDetector:
                 status=TrainStatus.RUNNING.value,
                 scheduled_arrival=None,
                 scheduled_departure=None,
-                last_updated=datetime.utcnow().isoformat(),
+                last_updated=datetime.now(timezone.utc).isoformat(),
                 section_id=SECTION_ID,
             )
             for i in range(1, 4)
@@ -376,3 +376,4 @@ class TestEventPipeline:
         ), f"Worst-case pipeline time {max_time:.2f}s exceeds 5s requirement"
         # Log for visibility
         print(f"\nPipeline times: avg={avg_time*1000:.0f}ms, max={max_time*1000:.0f}ms")
+

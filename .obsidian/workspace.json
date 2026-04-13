@@ -1,0 +1,227 @@
+{
+  "main": {
+    "id": "994bc511e5aad49c",
+    "type": "split",
+    "children": [
+      {
+        "id": "2e4c401d6a4bfe23",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cece5352d7bd5f54",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5e6ae6e1f737b08e",
+    "type": "split",
+    "children": [
+      {
+        "id": "1bb6bf4cd86a5d66",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b28ef22853ed1485",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "017fa80662bde834",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "ae755430d83a01ca",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "2faf728d0d862c3d",
+    "type": "split",
+    "children": [
+      {
+        "id": "5fa006d72203735f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "71763a07fe5c277f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "graphify-out/GRAPH_REPORT.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for GRAPH_REPORT"
+            }
+          },
+          {
+            "id": "edf147c4dd11d443",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "graphify-out/GRAPH_REPORT.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from GRAPH_REPORT"
+            }
+          },
+          {
+            "id": "c50cc9af3af98d6e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "a803aa3356d23c70",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "fc2f2431e3223313",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "graphify-out/GRAPH_REPORT.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of GRAPH_REPORT"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "cece5352d7bd5f54",
+  "lastOpenFiles": [
+    "graphify-out/GRAPH_REPORT.md",
+    "get-shit-done/vitest.config.ts",
+    "get-shit-done/tsconfig.json",
+    "get-shit-done/package.json",
+    "get-shit-done/package-lock.json",
+    "get-shit-done/scripts/secret-scan.sh",
+    "get-shit-done/scripts/run-tests.cjs",
+    "get-shit-done/scripts/prompt-injection-scan.sh",
+    "get-shit-done/scripts/build-hooks.js",
+    "get-shit-done/scripts/base64-scan.sh",
+    "get-shit-done/scripts",
+    "get-shit-done/sdk/prompts/templates/research-project/SUMMARY.md",
+    "get-shit-done/sdk/prompts/templates/research-project/STACK.md",
+    "get-shit-done/sdk/prompts/templates/research-project/PITFALLS.md",
+    "get-shit-done/sdk/prompts/templates/research-project/FEATURES.md",
+    "get-shit-done/sdk/prompts/templates/research-project/ARCHITECTURE.md",
+    "get-shit-done/sdk/prompts/workflows/verify-phase.md",
+    "get-shit-done/sdk/prompts/workflows/research-phase.md",
+    "get-shit-done/sdk/prompts/workflows/plan-phase.md",
+    "get-shit-done/sdk/prompts/workflows/execute-plan.md",
+    "get-shit-done/sdk/prompts/workflows/discuss-phase.md",
+    "get-shit-done/sdk/prompts/templates/state.md",
+    "get-shit-done/sdk/prompts/templates/roadmap.md",
+    "get-shit-done/sdk/prompts/templates/requirements.md",
+    "get-shit-done/sdk/prompts/templates/project.md",
+    "get-shit-done/sdk/prompts/agents/gsd-verifier.md",
+    "get-shit-done/sdk/prompts/agents/gsd-roadmapper.md",
+    "get-shit-done/sdk/prompts/agents/gsd-research-synthesizer.md",
+    "get-shit-done/sdk/prompts/agents/gsd-project-researcher.md",
+    "get-shit-done/sdk/prompts/agents/gsd-planner.md",
+    "get-shit-done/sdk/prompts/agents/gsd-plan-checker.md",
+    "get-shit-done/sdk/prompts/agents/gsd-phase-researcher.md",
+    "get-shit-done/sdk/prompts/agents/gsd-executor.md",
+    "get-shit-done/sdk/test-fixtures/sample-plan.md",
+    "get-shit-done/get-shit-done/templates/research-project/SUMMARY.md",
+    "get-shit-done/get-shit-done/templates/research-project/STACK.md",
+    "get-shit-done/assets/terminal.svg",
+    "get-shit-done/assets/gsd-logo-2000.svg",
+    "get-shit-done/assets/gsd-logo-2000.png",
+    "get-shit-done/assets/gsd-logo-2000-transparent.svg",
+    "get-shit-done/assets/gsd-logo-2000-transparent.png",
+    "graphify-out/obsidian/graph.canvas"
+  ]
+}

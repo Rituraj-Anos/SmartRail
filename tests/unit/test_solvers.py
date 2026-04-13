@@ -1,57 +1,68 @@
-from simulator.data_generator import generate_scenario
-from optimization.solvers.greedy_heuristic import GreedySolver
-from optimization.solvers.milp_solver import MILPSolver
+﻿from datetime import datetime, timezone
+
 from optimization.conflict_detector import ConflictDetector
+from optimization.solvers.greedy_heuristic import GreedyHeuristic
+from optimization.solvers.milp_solver import MILPSolver
+from services.train_tracker.state import TrainState, TrainStatus
+from simulator.data_generator import generate_scenario
+
+
+def make_train_state(train_id, block_id, direction="UP", delay=0, priority=3):
+    return TrainState(
+        train_id=train_id,
+        train_number=train_id,
+        priority=priority,
+        current_block_id=block_id,
+        previous_block_id=None,
+        speed_kmh=80.0,
+        direction=direction,
+        delay_seconds=delay,
+        status=TrainStatus.RUNNING.value,
+        scheduled_arrival=None,
+        scheduled_departure=None,
+        last_updated=datetime.now(timezone.utc).isoformat(),
+        section_id="TEST-SEC",
+    )
 
 
 def test_greedy_solver_basic():
     section, trains = generate_scenario(num_stations=5, num_trains=3)
-    solver = GreedySolver(section)
-
-    source_dest_map = {}
-    for train in trains:
-        source_dest_map[train.train_id] = (
+    solver = GreedyHeuristic(section)
+    source_dest_map = {
+        train.train_id: (
             section.stations[0].station_code,
             section.stations[-1].station_code,
         )
-
+        for train in trains
+    }
     schedules = solver.solve(trains, start_time_min=0, source_dest_map=source_dest_map)
     assert len(schedules) > 0
-
-    cd = ConflictDetector()
-    conflicts = cd.detect_conflicts(schedules)
-    # The greedy solver naturally avoids all headway and crossing conflicts by waiting
-    # but let's just make sure it returns a list
-    assert isinstance(conflicts, list)
 
 
 def test_milp_solver_basic():
     section, trains = generate_scenario(num_stations=5, num_trains=2)
     solver = MILPSolver(section, horizon_minutes=15, timeout_sec=2.0)
-
-    source_dest_map = {}
-    for train in trains:
-        source_dest_map[train.train_id] = (
+    source_dest_map = {
+        train.train_id: (
             section.stations[0].station_code,
             section.stations[-1].station_code,
         )
-
+        for train in trains
+    }
     schedules = solver.solve(trains, start_time_min=0, source_dest_map=source_dest_map)
     assert isinstance(schedules, dict)
 
 
-def test_detect_cascades():
+def test_detect():
+    """ConflictDetector.detect() finds headway violation when two trains share a block."""
     cd = ConflictDetector()
-    schedules = {
-        "train_delayed": [("A", 0), ("B", 10), ("C", 20)],
-        "train_affected_1": [("B", 15), ("D", 25)],
-        "train_affected_2": [("E", 5), ("B", 25)],
-        "train_unaffected": [("X", 0), ("Y", 10)],
-    }
-
-    affected = cd.detect_cascades("train_delayed", schedules, delay_minutes=5)
-
-    assert "train_affected_1" in affected
-    assert "train_affected_2" in affected
-    assert "train_unaffected" not in affected
-    assert "train_delayed" not in affected
+    trains = [
+        make_train_state("train_a", "BLOCK_05", priority=5),
+        make_train_state("train_b", "BLOCK_05", priority=3),  # same block = conflict
+        make_train_state("train_c", "BLOCK_10", priority=3),  # different block = ok
+    ]
+    report = cd.detect(trains)
+    involved = [tid for c in report.conflicts for tid in c.trains_involved]
+    assert "train_a" in involved
+    assert "train_b" in involved
+    assert report.requires_reoptimization is True

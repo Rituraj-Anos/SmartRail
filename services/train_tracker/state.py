@@ -9,7 +9,7 @@ via Kafka events. Readable by the Conflict Detector and Dashboard.
 import json
 import logging
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -101,7 +101,10 @@ class TrainStateTracker:
         )
         # Track in section active set
         active_key = f"{self.ACTIVE_KEY_PREFIX}{state.section_id}"
-        self.redis.sadd(active_key, state.train_id)
+        if state.status != TrainStatus.COMPLETED.value:
+            self.redis.sadd(active_key, state.train_id)
+        else:
+            self.redis.srem(active_key, state.train_id)
         self.redis.expire(active_key, self.STATE_TTL_SECONDS)
 
         # Append block transition to history if block changed
@@ -135,7 +138,7 @@ class TrainStateTracker:
 
         state.delay_seconds += additional_delay_seconds
         state.status = TrainStatus.DELAYED.value
-        state.last_updated = datetime.utcnow().isoformat()
+        state.last_updated = datetime.now(timezone.utc).isoformat()
         self.update_train_state(state)
         return state
 
@@ -156,7 +159,7 @@ class TrainStateTracker:
         state.previous_block_id = state.current_block_id
         state.current_block_id = new_block_id
         state.speed_kmh = speed_kmh
-        state.last_updated = datetime.utcnow().isoformat()
+        state.last_updated = datetime.now(timezone.utc).isoformat()
 
         if speed_kmh > 0 and state.status == TrainStatus.STOPPED.value:
             state.status = TrainStatus.RUNNING.value
@@ -172,7 +175,7 @@ class TrainStateTracker:
         state = self.get_train_state(train_id)
         if state:
             state.status = TrainStatus.COMPLETED.value
-            state.last_updated = datetime.utcnow().isoformat()
+            state.last_updated = datetime.now(timezone.utc).isoformat()
             self.update_train_state(state)
 
         logger.info(f"Train {train_id} marked as completed in section {section_id}")
@@ -241,7 +244,7 @@ class TrainStateTracker:
             "breakdowns": len(
                 [t for t in all_trains if t.status == TrainStatus.BREAKDOWN.value]
             ),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     # ─────────────────────────────────────────

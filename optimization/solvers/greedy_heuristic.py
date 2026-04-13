@@ -9,7 +9,7 @@ def get_priority_weight(priority: Priority) -> int:
     return priority.value
 
 
-class GreedySolver:
+class GreedyHeuristic:
     """
     Tier 1 Priority-based Greedy Solver.
     Input: Current section state (all train positions).

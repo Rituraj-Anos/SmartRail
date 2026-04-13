@@ -5,7 +5,7 @@ Optimization Engine core module and Solver Factory.
 from typing import Dict, List, Tuple
 from core.models.train import Train
 from core.models.section import Section
-from optimization.solvers.greedy_heuristic import GreedySolver
+from optimization.solvers.greedy_heuristic import GreedyHeuristic
 from optimization.solvers.milp_solver import MILPSolver
 from optimization.conflict_detector import ConflictDetector
 
@@ -41,17 +41,19 @@ class SolverFactory:
 
             # Fallback to greedy if MILP doesn't find a solution in time
             if not schedules:
-                greedy_solver = GreedySolver(self.section)
-                schedules = greedy_solver.solve(trains, start_time_min, source_dest_map)
+                greedy_heuristic = GreedyHeuristic(self.section)
+                schedules = greedy_heuristic.solve(
+                    trains, start_time_min, source_dest_map
+                )
             return schedules
         else:
             # Tier 1 Greedy for fast execution in mild/severe situations
-            greedy_solver = GreedySolver(self.section)
-            return greedy_solver.solve(trains, start_time_min, source_dest_map)
+            greedy_heuristic = GreedyHeuristic(self.section)
+            return greedy_heuristic.solve(trains, start_time_min, source_dest_map)
 
 
 __all__ = [
-    "GreedySolver",
+    "GreedyHeuristic",
     "MILPSolver",
     "ConflictDetector",
     "SolverFactory",

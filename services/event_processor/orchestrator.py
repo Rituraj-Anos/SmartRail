@@ -12,11 +12,11 @@ Severity routing:
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from optimization.conflict_detector import ConflictDetector, ConflictReport, Severity
-from optimization.solvers.greedy_heuristic import GreedySolver
+from optimization.solvers.greedy_heuristic import GreedyHeuristic
 from optimization.solvers.milp_solver import MILPSolver
 from services.event_processor.kafka_consumer import (
     EventType,
@@ -61,7 +61,7 @@ class ReoptimizationResult:
             "runtime_ms": round(self.runtime_ms, 2),
             "success": self.success,
             "error": self.error,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 
@@ -85,7 +85,7 @@ class EventOrchestrator:
         self.section_id = section_id
         self.section_graph = section_graph
         self.conflict_detector = ConflictDetector(section_config)
-        self.greedy_solver = GreedySolver(section_graph) if section_graph else None
+        self.greedy_solver = GreedyHeuristic(section_graph) if section_graph else None
         self.milp_solver = MILPSolver(section_graph) if section_graph else None
 
         # Callback for pushing results to WebSocket
@@ -167,7 +167,7 @@ class EventOrchestrator:
             state.status = TrainStatus.BREAKDOWN.value
             state.speed_kmh = 0.0
             state.delay_seconds = max(state.delay_seconds, 1800)  # min 30 min
-            state.last_updated = datetime.utcnow().isoformat()
+            state.last_updated = datetime.now(timezone.utc).isoformat()
             self.tracker.update_train_state(state)
 
         logger.warning(
@@ -184,7 +184,7 @@ class EventOrchestrator:
             state.delay_seconds = max(0, state.delay_seconds - recovered_seconds)
             if state.delay_seconds == 0:
                 state.status = TrainStatus.RUNNING.value
-            state.last_updated = datetime.utcnow().isoformat()
+            state.last_updated = datetime.now(timezone.utc).isoformat()
             self.tracker.update_train_state(state)
 
         self._run_detection_and_optimize(event.event_id, event.event_type)
@@ -196,7 +196,7 @@ class EventOrchestrator:
             new_status = event.payload.get("status")
             if new_status:
                 state.status = new_status
-                state.last_updated = datetime.utcnow().isoformat()
+                state.last_updated = datetime.now(timezone.utc).isoformat()
                 self.tracker.update_train_state(state)
 
     # ─────────────────────────────────────────
@@ -231,7 +231,7 @@ class EventOrchestrator:
             f"conflicts={report.conflict_count}, event={event_id}"
         )
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         try:
             if severity == Severity.LOW:
@@ -247,7 +247,7 @@ class EventOrchestrator:
                         f"flagging for Tier 3 background replan"
                     )
 
-            runtime_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+            runtime_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
             reopt_result = ReoptimizationResult(
                 triggered_by_event=event_id,
@@ -260,7 +260,7 @@ class EventOrchestrator:
             )
 
         except Exception as e:
-            runtime_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+            runtime_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
             logger.error(f"Reoptimization failed: {e}")
             reopt_result = ReoptimizationResult(
                 triggered_by_event=event_id,
@@ -294,8 +294,7 @@ class EventOrchestrator:
         if not self.greedy_solver:
             return self._generate_rule_based_recommendations(report)
 
-        active_trains = self.tracker.get_all_active_trains(self.section_id)
-        # GreedySolver.solve expects List[Train], start_time_min, source_dest_map
+        # GreedyHeuristic.solve expects List[Train], start_time_min, source_dest_map
         # The provided content orchestrator uses a slightly different logic
         # Adjusting to match the actual solver implementation from Phase 1
 
@@ -396,7 +395,7 @@ class EventOrchestrator:
                 status=TrainStatus.RUNNING.value,
                 scheduled_arrival=None,
                 scheduled_departure=None,
-                last_updated=datetime.utcnow().isoformat(),
+                last_updated=datetime.now(timezone.utc).isoformat(),
                 section_id=self.section_id,
             )
         except Exception as e:

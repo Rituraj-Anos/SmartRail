@@ -1,13 +1,13 @@
 import time
 from simulator.data_generator import generate_scenario
-from optimization.solvers.greedy_heuristic import GreedySolver
+from optimization.solvers.greedy_heuristic import GreedyHeuristic
 from optimization.solvers.milp_solver import MILPSolver
 from optimization.conflict_detector import ConflictDetector
 
 
 def test_greedy_performance():
     section, trains = generate_scenario(num_stations=15, num_trains=30)
-    solver = GreedySolver(section)
+    solver = GreedyHeuristic(section)
 
     source_dest_map = {}
     for train in trains:
@@ -59,7 +59,7 @@ def test_milp_performance():
 
     cd = ConflictDetector()
     t_cd0 = time.time()
-    cd.detect_conflicts(schedules)
+    cd.detect(schedules)
     t_cd1 = time.time()
 
     assert (t_cd1 - t_cd0) < 1.0
