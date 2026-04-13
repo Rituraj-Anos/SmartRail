@@ -10,7 +10,7 @@ Verifies the full event pipeline end-to-end:
 """
 
 import time
-from datetime import datetime, timezone, timezone
+from datetime import datetime, timezone
 
 import pytest
 import redis
@@ -376,4 +376,3 @@ class TestEventPipeline:
         ), f"Worst-case pipeline time {max_time:.2f}s exceeds 5s requirement"
         # Log for visibility
         print(f"\nPipeline times: avg={avg_time*1000:.0f}ms, max={max_time*1000:.0f}ms")
-
